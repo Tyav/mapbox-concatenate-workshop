@@ -17,6 +17,10 @@
         a, a:hover, a:visited {
             color: #0071bc;
         }
+        video {
+            height: 300px;
+            width: 400px;
+        }
         #map {
             top:0;
             height: 100vh;
@@ -170,12 +174,22 @@ config.chapters.forEach((record, idx) => {
         image.src = record.image;
         chapter.appendChild(image);
     }
+    // custom short video
+    if (record.video) {
+        var video = document.createElement('video')
+        video.autoplay = true
+        video.controls = true
+        // video.width="320px"
+        video.src = record.video
+        chapter.appendChild(video)
+    }
 
     if (record.description) {
         var story = document.createElement('p');
         story.innerHTML = record.description;
         chapter.appendChild(story);
     }
+    
 
     container.setAttribute('id', record.id);
     container.classList.add('step');
@@ -244,7 +258,9 @@ map.on("load", function() {
     .onStepEnter(response => {
         var chapter = config.chapters.find(chap => chap.id === response.element.id);
         response.element.classList.add('active');
+        console.log(response.element.classList)
         map.flyTo(chapter.location);
+        console.log(chapter)
         if (config.showMarkers) {
             marker.setLngLat(chapter.location.center);
         }
@@ -254,7 +270,9 @@ map.on("load", function() {
     })
     .onStepExit(response => {
         var chapter = config.chapters.find(chap => chap.id === response.element.id);
-        response.element.classList.remove('active');
+        setTimeout(()=>{
+            response.element.classList.remove('active');
+        }, 5000)
         if (chapter.onChapterEnter && chapter.onChapterExit.length > 0) {
             chapter.onChapterExit.forEach(setLayerOpacity);
         }

@@ -28,23 +28,60 @@
   <body>
 
     <!-- Add a #map element to the page, to serve as the map's container -->
-    <div id='map'></div>
+      <div id='map' style="width: 70%; height: 800px;"></div>
+      <div style="width: 30%; height: 800px;float: right;">
+          <div id="data">
+            <div id="title"></div>
+            <div id=""></div>
+            <div></div>
+          </div>
+      </div>
 
     <script>
 
     // Set an access token to allow the browser to load the map from our account
     // TODO replace this with YOUR access token!
-    mapboxgl.accessToken = 'pk.eyJ1IjoidmFraWxhIiwiYSI6ImNrMWhuZnAwcjFjdWkzbm81M3pudXprcHIifQ.9As-ktwk5eelXbGP2z22HQ';
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZ3JlZW5sYWQiLCJhIjoiY2sxajJ6OGJmMDc3azNibGY2d2FjaTh5biJ9.nsfrkQWCJatSpNdJhBqTcQ';
 
     // Instantiate a new Map object to load the map itself
     const map = new mapboxgl.Map({
-      style: 'mapbox://styles/mapbox/streets-v11', //TODO replace this with YOUR style URL! This tells the map which style to use
+      style: 'mapbox://styles/greenlad/ck1j5ardl068i1cpc8jn3ohj0', //TODO replace this with YOUR style URL! This tells the map which style to use
       container: 'map', // id of the container div we created above
-      center: [3.39663, 6.44392], // the location to display when the map first loads
-      zoom: 10 // the zoom level to display when the map first loads
+      center: [3.329,6.519], // the location to display when the map first loads
+      zoom: 10.03 // the zoom level to display when the map first loads
     });
 
     // Part 4 code will go here
+    map.on('click', (event) => {
+      const clickedPoint = [event.lngLat.lng, event.lngLat.lat]; 
+      // this get the longitude and latitude of the position clicked on the map
+      const location = {
+        center: clickedPoint,
+        zoom: map.getZoom(),
+        pitch: map.getPitch(),
+        bearing: map.getBearing(),
+      };
+      map.flyTo(location); // focus map on where was clicked
+
+      let clicked = {
+        location: location
+      };
+
+      const clickedFeatures = map.queryRenderedFeatures(event.point, {layers: ['kata-zones (1)']});
+      console.log(clickedFeatures)
+      if (clickedFeatures.length > 0){
+        clicked.title = clickedFeatures[0].properties.title;
+        clicked.description = clickedFeatures[0].properties.description;
+        clicked.cost = clickedFeatures[0].properties.cost;
+        const popup = new mapboxgl.Popup() // create the popup
+          .setLngLat(clicked.location.center) // position it at the clicked point
+          .setHTML(`<h3> ${clicked.title}  </h3><p> ${clicked.description}  </p><p> ${clicked.cost? clicked.cost+'NGN' : 'FREE' } </p>`) // add some HTML content
+          .addTo(map); // place the popup on the map
+      }
+
+      
+      console.log(JSON.stringify(clicked, null, 2));
+    });
 
     </script>
   </body>
